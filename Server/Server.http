@@ -1,6 +1,39 @@
 @Server_HostAddress = http://localhost:5074
 
-GET {{Server_HostAddress}}/weatherforecast/
+GET {{Server_HostAddress}}/
 Accept: application/json
 
 ###
+
+POST {{Server_HostAddress}}/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "password": "Password123!",
+  "email": "john@example.org"
+}
+
+###
+
+# @name login
+POST {{Server_HostAddress}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "john@example.org",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+%}
+
+###
+
+GET {{Server_HostAddress}}/api/secured/
+Accept: application/json
+Authorization: Bearer {{jwt_token}}

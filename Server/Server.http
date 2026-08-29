@@ -29,7 +29,8 @@ Accept: application/json
 }
 
 > {%
-    client.global.set("jwt_token", response.body.token);
+    client.global.set("jwt_token", response.body.authToken.value);
+    client.global.set("refresh_token", response.body.refreshToken.value);
 %}
 
 ###
@@ -37,3 +38,28 @@ Accept: application/json
 GET {{Server_HostAddress}}/api/secured/
 Accept: application/json
 Authorization: Bearer {{jwt_token}}
+
+###
+
+POST {{Server_HostAddress}}/auth/refresh
+Content-Type: application/json
+Accept: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.authToken.value);
+    client.global.set("refresh_token", response.body.refreshToken.value);
+%}
+
+###
+
+POST {{Server_HostAddress}}/auth/logout
+Content-Type: application/json
+Accept: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}

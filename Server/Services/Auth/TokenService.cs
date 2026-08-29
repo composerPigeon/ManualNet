@@ -1,8 +1,12 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Server.Data;
+using Server.Data.Managers;
 using Server.Model.Auth;
 using Server.Options;
 
@@ -10,14 +14,17 @@ namespace Server.Services.Auth;
 
 public interface ITokenService
 {
-    (string Token, DateTime ExpiresAt) CreateToken(ApplicationUser user, IEnumerable<string> roles);
+    Token CreateToken(ApplicationUser user, IEnumerable<string> roles);
+    HashToken CreateRefreshToken();
+    string HashRefreshToken(string token);
 }
 
-public class TokenService(IOptions<JwtOptions> jwtOptions) : ITokenService
+public class TokenService(IOptions<JwtOptions> jwtOptions, IRefreshTokenManager refreshTokenManager, AppDbContext db) : ITokenService
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+    private readonly IRefreshTokenManager _refreshTokenManager = refreshTokenManager;
 
-    public (string Token, DateTime ExpiresAt) CreateToken(ApplicationUser user, IEnumerable<string> roles)
+    public Token CreateToken(ApplicationUser user, IEnumerable<string> roles)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiryMinutes);
 
@@ -48,6 +55,40 @@ public class TokenService(IOptions<JwtOptions> jwtOptions) : ITokenService
         var handler = new JsonWebTokenHandler();
         var token = handler.CreateToken(descriptor);
 
-        return (token, expiresAt);
+        return new Token()
+        {
+            Value = token,
+            ExpiresAt = expiresAt,
+        };
+    }
+
+    public HashToken CreateRefreshToken()
+    {
+        var token = Base64UrlEncoder.Encode(RandomNumberGenerator.GetBytes(64));
+        var tokenHash = HashRefreshToken(token);
+        var expiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpiryDays);
+
+        return new HashToken { 
+            Value = token,
+            ExpiresAt = expiresAt,
+            Hash = tokenHash
+        };
+    }
+
+    public string HashRefreshToken(string token)
+    {
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+    }
+    
+    private async Task RevokeAllActiveTokensAsync(ApplicationUser user)
+    {
+        var activeTokens = await _refreshTokenManager.GetAllActiveTokensForUserAsync(user);
+
+        foreach (var token in activeTokens)
+        {
+            token.RevokedAt = DateTime.UtcNow;
+        }
+
+        await db.SaveChangesAsync();
     }
 }

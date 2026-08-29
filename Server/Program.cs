@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Server.Data;
-using Server.Endpoints;
+using Server.Data.Managers;
 using Server.Model.Auth;
 using Server.Options;
 using Server.Services.Auth;
@@ -53,8 +53,13 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.AddControllers();
+
 builder.Services.AddAuthorization();
-builder.Services.AddTransient<ITokenService, TokenService>();
+
+builder.Services
+    .AddTransient<ITokenService, TokenService>()
+    .AddTransient<IRefreshTokenManager, RefreshTokenManager>();
 
 var app = builder.Build();
 
@@ -70,8 +75,7 @@ app.UseAuthorization();
 
 await app.CreateInitialRolesAsync();
 
-app.MapAuthorisationEndpoints();
-app.MapSecuredEndpoints();
+app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");
 

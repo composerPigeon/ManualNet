@@ -25,7 +25,7 @@ public static class RefreshTokenEntityContext
             refreshToken.HasIndex(x => x.TokenHash)
                 .IsUnique();
 
-            refreshToken.HasOne(x => x.User)
+            refreshToken.HasOne(x => x.UserEntity)
                 .WithMany()
                 .HasForeignKey("UserId")
                 .OnDelete(DeleteBehavior.Cascade);

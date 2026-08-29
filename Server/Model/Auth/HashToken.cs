@@ -1,3 +1,5 @@
+using Shared.Model.Auth;
+
 namespace Server.Model.Auth;
 
 public readonly struct HashToken 

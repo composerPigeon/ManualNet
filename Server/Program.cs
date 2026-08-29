@@ -8,7 +8,7 @@ using Server.Data;
 using Server.Data.Managers;
 using Server.Model.Auth;
 using Server.Options;
-using Server.Services.Auth;
+using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +49,7 @@ builder.Services
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("ManualNet"));
 builder.Services
-    .AddIdentityCore<ApplicationUser>()
+    .AddIdentityCore<ManualNetUserEntity>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
@@ -58,8 +58,9 @@ builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
 builder.Services
-    .AddTransient<ITokenService, TokenService>()
-    .AddTransient<IRefreshTokenManager, RefreshTokenManager>();
+    .AddTransient<IAuthService, AuthService>()
+    .AddTransient<IRefreshTokenManager, RefreshTokenManager>()
+    .AddTransient<IManualNetUserManager, ManualNetUserManager>();
 
 var app = builder.Build();
 

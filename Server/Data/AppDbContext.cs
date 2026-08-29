@@ -6,7 +6,7 @@ using Server.Model.Auth;
 namespace Server.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<ApplicationUser>(options)
+    : IdentityDbContext<ManualNetUserEntity>(options)
 {
     public DbSet<RefreshTokenEntity> RefreshTokens => Set<RefreshTokenEntity>();
 

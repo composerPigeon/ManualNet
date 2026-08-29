@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.Model.Auth;
+using Shared.Model.Auth;
 
 namespace Server.Controllers;
 
@@ -16,7 +16,7 @@ public class SecuredController : ControllerBase
     }
 
     [HttpGet("admin")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.AdminRoleName)]
     public IActionResult GetAdmin()
     {
         return Ok("Hello Admin, this endpoint is for administrators only.");

@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -9,36 +8,36 @@ using Server.Data;
 using Server.Data.Managers;
 using Server.Model.Auth;
 using Server.Options;
+using Shared.Model.Auth;
 
-namespace Server.Services.Auth;
+namespace Server.Services;
 
-public interface ITokenService
+public interface IAuthService
 {
-    Token CreateToken(ApplicationUser user, IEnumerable<string> roles);
+    Token CreateAuthToken(ManualNetUserEntity userEntity, IEnumerable<Role> roles);
     HashToken CreateRefreshToken();
     string HashRefreshToken(string token);
 }
 
-public class TokenService(IOptions<JwtOptions> jwtOptions, IRefreshTokenManager refreshTokenManager, AppDbContext db) : ITokenService
+public class AuthService(IOptions<JwtOptions> jwtOptions, IRefreshTokenManager refreshTokenManager, AppDbContext db) : IAuthService
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
-    private readonly IRefreshTokenManager _refreshTokenManager = refreshTokenManager;
 
-    public Token CreateToken(ApplicationUser user, IEnumerable<string> roles)
+    public Token CreateAuthToken(ManualNetUserEntity userEntity, IEnumerable<Role> roles)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiryMinutes);
 
         // Claims are the pieces of information we store inside the token.
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Name, $"{user.FirstName} {user.LastName}"),
+            new(JwtRegisteredClaimNames.Sub, userEntity.Id),
+            new(JwtRegisteredClaimNames.Email, userEntity.Email.ToString()),
+            new(JwtRegisteredClaimNames.Name, $"{userEntity.FirstName} {userEntity.LastName}"),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         // One "role" claim per role the user has.
-        claims.AddRange(roles.Select(role => new Claim("role", role)));
+        claims.AddRange(roles.Select(role => new Claim("role", role.Name)));
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
@@ -80,9 +79,9 @@ public class TokenService(IOptions<JwtOptions> jwtOptions, IRefreshTokenManager 
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
     
-    private async Task RevokeAllActiveTokensAsync(ApplicationUser user)
+    private async Task RevokeAllActiveTokensAsync(ManualNetUserEntity userEntity)
     {
-        var activeTokens = await _refreshTokenManager.GetAllActiveTokensForUserAsync(user);
+        var activeTokens = await refreshTokenManager.FindAllActiveTokensForUserAsync(userEntity);
 
         foreach (var token in activeTokens)
         {

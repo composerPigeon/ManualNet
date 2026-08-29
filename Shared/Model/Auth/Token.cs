@@ -1,4 +1,4 @@
-namespace Server.Model.Auth;
+namespace Shared.Model.Auth;
 
 public readonly struct Token
 {

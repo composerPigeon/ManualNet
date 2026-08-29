@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Server.Data.EntityContexts;
+using Shared.Model.Auth;
 
 namespace Server.Model.Auth;
 
@@ -13,11 +14,11 @@ public class RefreshTokenEntity : IEntityBase<Guid>
     public DateTime ExpiresAt { get; init; }
     public DateTime? RevokedAt { get; set; }
 
-    public ApplicationUser User { get; init; } = null!;
+    public ManualNetUserEntity UserEntity { get; init; } = null!;
 
     public bool IsActive => RevokedAt == null && ExpiresAt > DateTime.UtcNow;
 
-    public static RefreshTokenEntity From(ApplicationUser user, HashToken token)
+    public static RefreshTokenEntity From(ManualNetUserEntity userEntity, HashToken token)
     {
         return new RefreshTokenEntity
         {
@@ -25,7 +26,7 @@ public class RefreshTokenEntity : IEntityBase<Guid>
             TokenHash = token.Hash,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = token.ExpiresAt,
-            User = user,
+            UserEntity = userEntity,
         };
     }
 }

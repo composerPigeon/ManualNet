@@ -1,3 +1,3 @@
-namespace Server.Controllers.Requests;
+namespace Shared.Requests;
 
 public record RefreshTokenRequest(string RefreshToken);

@@ -1,22 +1,20 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Server.Data;
 using Server.Data.Managers;
 using Server.Model.Auth;
-using Server.Services.Auth;
-using Server.Controllers.Requests;
-using Server.Controllers.Responses;
-using RegisterRequest = Server.Controllers.Requests.RegisterRequest;
+using Server.Services;
+using Shared.Model.Auth;
+using Shared.Requests;
+using Shared.Responses;
 
 namespace Server.Controllers;
 
 [ApiController]
 [Route("auth/")]
 public class AuthorisationController(
-    UserManager<ApplicationUser> userManager,
+    IManualNetUserManager userManager,
     IRefreshTokenManager refreshTokenManager,
-    ITokenService tokenService,
+    IAuthService authService,
     AppDbContext db) : ControllerBase
 {
     [HttpPost("register/")]
@@ -27,7 +25,7 @@ public class AuthorisationController(
             return Results.BadRequest($"Email '{request.Email}' is already registered.");
         }
 
-        var user = ApplicationUser.From(request);
+        var user = ManualNetUserEntity.From(request);
 
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
@@ -35,7 +33,7 @@ public class AuthorisationController(
             return Results.BadRequest(result.Errors.Select(e => e.Description));
         }
 
-        await userManager.AddToRoleAsync(user, Roles.User);
+        await userManager.AddToRoleAsync(user, Role.User);
         return Results.Ok($"User '{request.Email}' registered successfully.");
     }
     
@@ -50,8 +48,8 @@ public class AuthorisationController(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        var authToken = tokenService.CreateToken(user, roles);
-        var refreshToken = tokenService.CreateRefreshToken();
+        var authToken = authService.CreateAuthToken(user, roles);
+        var refreshToken = authService.CreateRefreshToken();
 
         refreshTokenManager.Add(RefreshTokenEntity.From(user, refreshToken));
 
@@ -68,33 +66,33 @@ public class AuthorisationController(
             return Results.BadRequest("Refresh token is required.");
         }
 
-        var tokenHash = tokenService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = authService.HashRefreshToken(request.RefreshToken);
         
-        var storedRefreshToken = await refreshTokenManager.GetByHashAsync(tokenHash);
+        var storedRefreshToken = await refreshTokenManager.FindByHashAsync(tokenHash);
 
         if (storedRefreshToken is null || !storedRefreshToken.IsActive)
         {
             return Results.Unauthorized();
         }
 
-        var roles = await userManager.GetRolesAsync(storedRefreshToken.User);
-        var token = tokenService.CreateToken(storedRefreshToken.User, roles);
-        var refreshToken = tokenService.CreateRefreshToken();
+        var roles = await userManager.GetRolesAsync(storedRefreshToken.UserEntity);
+        var token = authService.CreateAuthToken(storedRefreshToken.UserEntity, roles);
+        var refreshToken = authService.CreateRefreshToken();
 
         storedRefreshToken.RevokedAt = DateTime.UtcNow;
 
-        refreshTokenManager.Add(RefreshTokenEntity.From(storedRefreshToken.User, refreshToken));
+        refreshTokenManager.Add(RefreshTokenEntity.From(storedRefreshToken.UserEntity, refreshToken));
 
         await db.SaveChangesAsync();
-        return Results.Ok(new AuthResponse(storedRefreshToken.User, token, refreshToken));
+        return Results.Ok(new AuthResponse(storedRefreshToken.UserEntity, token, refreshToken));
     }
     
     [HttpPost("logout/")]
     public async Task<IResult> RevokeAsync(RefreshTokenRequest request)
     {
-        var tokenHash = tokenService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = authService.HashRefreshToken(request.RefreshToken);
         
-        var token = await refreshTokenManager.GetByHashAsync(tokenHash);
+        var token = await refreshTokenManager.FindByHashAsync(tokenHash);
 
         if (token is null || !token.IsActive)
         {

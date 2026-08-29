@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Server.Model.Auth;
+using Shared.Model.Auth;
 
 namespace Server.Data;
 
@@ -10,11 +10,11 @@ public static class InitRolesExtension
         await using var scope = app.Services.CreateAsyncScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        foreach (var role in Roles.GetInitialRoles())
+        foreach (var role in Roles.GetAll())
         {
-            if (!await roleManager.RoleExistsAsync(role))
+            if (!await roleManager.RoleExistsAsync(role.Name))
             {
-                await roleManager.CreateAsync(new IdentityRole(role));
+                await roleManager.CreateAsync(new IdentityRole(role.Name));
             }
         }
     }

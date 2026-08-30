@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Client.SignupPage" Title="Create account">
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="16">
+            <Label Text="Create account" Style="{StaticResource Headline}"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Entry x:Name="FirstNameEntry" Placeholder="First name" ReturnType="Next" />
+            <Entry x:Name="LastNameEntry" Placeholder="Last name" ReturnType="Next" />
+            <Entry x:Name="EmailEntry" Placeholder="Email" Keyboard="Email" ReturnType="Next" />
+            <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" ReturnType="Next" />
+            <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm password" IsPassword="True"
+                   ReturnType="Done" Completed="OnSignupSubmitted" />
+            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False"
+                   SemanticProperties.Description="Polite" />
+            <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" IsRunning="False" />
+            <Button x:Name="SignupButton" Text="Create account" Clicked="OnSignupClicked" />
+            <Button Text="Already have an account? Log in" Clicked="OnLoginClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

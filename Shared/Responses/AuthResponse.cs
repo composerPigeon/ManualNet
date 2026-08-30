@@ -1,11 +1,26 @@
+using System.Text.Json.Serialization;
 using Shared.Model.Auth;
 
 namespace Shared.Responses;
 
-public class AuthResponse(IManualNetUser user, Token authToken, Token refreshToken)
+public class AuthResponse
 {
-    public string Id { get; init; } = user.Id;
-    public Email Email { get; init; } = user.Email;
-    public Token AuthToken { get; init; } = authToken;
-    public Token RefreshToken { get; init; } = refreshToken;
+    [JsonConstructor]
+    public AuthResponse(string id, Email email, Token authToken, Token refreshToken)
+    {
+        Id = id;
+        Email = email;
+        AuthToken = authToken;
+        RefreshToken = refreshToken;
+    }
+
+    public AuthResponse(IManualNetUser user, Token authToken, Token refreshToken)
+        : this(user.Id, user.Email, authToken, refreshToken)
+    {
+    }
+
+    public string Id { get; }
+    public Email Email { get; }
+    public Token AuthToken { get; }
+    public Token RefreshToken { get; }
 }

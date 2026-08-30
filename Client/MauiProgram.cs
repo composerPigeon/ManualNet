@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Client.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Client;
 
@@ -18,6 +19,14 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+
+        builder.Services.AddSingleton(new HttpClient
+        {
+            BaseAddress = new Uri("http://localhost:5074/")
+        });
+        builder.Services.AddTransient<IServerProxy, ServerProxy>();
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<SignupPage>();
 
         return builder.Build();
     }

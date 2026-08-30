@@ -81,7 +81,7 @@ public class AuthService(IOptions<JwtOptions> jwtOptions, IRefreshTokenManager r
     
     private async Task RevokeAllActiveTokensAsync(ManualNetUserEntity userEntity)
     {
-        var activeTokens = await refreshTokenManager.FindAllActiveTokensForUserAsync(userEntity);
+        var activeTokens = refreshTokenManager.FindAllActiveTokensForUser(userEntity);
 
         foreach (var token in activeTokens)
         {

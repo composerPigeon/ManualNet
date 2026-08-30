@@ -9,9 +9,9 @@ public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity, str
 {
     public Task<ManualNetUserEntity?> FindByEmailAsync(Email email);
     
-    public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, string password);
+    public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, Password password);
     public Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role);
-    public Task<bool> CheckPasswordAsync(ManualNetUserEntity user, string password);
+    public Task<bool> CheckPasswordAsync(ManualNetUserEntity user, Password password);
     public Task<IList<Role>> GetRolesAsync(ManualNetUserEntity user);
 }
 
@@ -47,8 +47,18 @@ public class ManualNetUserManager(
         return roleNames.Select(Role.FromName).ToList();
     }
 
-    public async Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role)
+    public Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role)
     {
-        return await base.AddToRoleAsync(user, role.Name);
+        return base.AddToRoleAsync(user, role.Name);
+    }
+
+    public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, Password password)
+    {
+        return base.CreateAsync(user, password.ToString());
+    }
+
+    public Task<bool> CheckPasswordAsync(ManualNetUserEntity user, Password password)
+    {
+        return base.CheckPasswordAsync(user, password.ToString());
     }
 }

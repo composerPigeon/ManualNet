@@ -5,7 +5,7 @@ namespace Server.Data.Managers;
 
 public interface IRefreshTokenManager : IDbSetEntityManager<RefreshTokenEntity, Guid>
 {
-    public Task<ICollection<RefreshTokenEntity>> FindAllActiveTokensForUserAsync(ManualNetUserEntity userEntity);
+    public IEnumerable<RefreshTokenEntity> FindAllActiveTokensForUser(ManualNetUserEntity userEntity);
     public Task<RefreshTokenEntity?> FindByHashAsync(string tokenHash);
 }
 
@@ -14,18 +14,17 @@ public class RefreshTokenManager(AppDbContext context)
 {
     protected override DbSet<RefreshTokenEntity> Entities => Context.RefreshTokens;
     
-    public async Task<ICollection<RefreshTokenEntity>> FindAllActiveTokensForUserAsync(ManualNetUserEntity userEntity)
+    public IEnumerable<RefreshTokenEntity> FindAllActiveTokensForUser(ManualNetUserEntity userEntity)
     {
-        return await Entities
+        return Entities
             .Where(t => t.UserEntity == userEntity &&
                         t.RevokedAt == null &&
-                        t.ExpiresAt > DateTime.UtcNow)
-            .ToListAsync();
+                        t.ExpiresAt > DateTime.UtcNow);
     }
 
-    public async Task<RefreshTokenEntity?> FindByHashAsync(string tokenHash)
+    public Task<RefreshTokenEntity?> FindByHashAsync(string tokenHash)
     {
-        return await Entities
+        return Entities
             .Where(t => t.TokenHash == tokenHash)
             .Include(t => t.UserEntity)
             .FirstOrDefaultAsync();

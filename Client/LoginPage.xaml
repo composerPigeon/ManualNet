@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Client.LoginPage" Title="Log in">
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="16" VerticalOptions="Center">
+            <Label Text="Welcome back" Style="{StaticResource Headline}"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Entry x:Name="EmailEntry" Placeholder="Email" Keyboard="Email"
+                   ReturnType="Next" SemanticProperties.Description="Email address" />
+            <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True"
+                   ReturnType="Done" Completed="OnLoginSubmitted"
+                   SemanticProperties.Description="Password" />
+            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False"
+                   SemanticProperties.Description="Polite"/>
+            <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" IsRunning="False" />
+            <Button x:Name="LoginButton" Text="Log in" Clicked="OnLoginClicked" />
+            <Button Text="Create an account" Clicked="OnSignupClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

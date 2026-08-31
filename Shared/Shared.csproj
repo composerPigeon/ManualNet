@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Model\Domain\" />
+      <Folder Include="Resources\" />
+    </ItemGroup>
+
 </Project>

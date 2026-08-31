@@ -59,6 +59,7 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddTransient<IAuthService, AuthService>()
+    .AddTransient<IResultFactory, ResultFactory>()
     .AddTransient<IRefreshTokenManager, RefreshTokenManager>()
     .AddTransient<IManualNetUserManager, ManualNetUserManager>();
 
@@ -80,7 +81,5 @@ app.UseAuthorization();
 await app.CreateInitialRolesAsync();
 
 app.MapControllers();
-
-app.MapGet("/", () => "Hello World!");
 
 app.Run();

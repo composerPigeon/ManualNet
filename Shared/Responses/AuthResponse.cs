@@ -3,24 +3,12 @@ using Shared.Model.Auth;
 
 namespace Shared.Responses;
 
-public class AuthResponse
+public class AuthResponse(string id, Email email, Token authToken, Token refreshToken) : ManualNetResponse
 {
-    [JsonConstructor]
-    public AuthResponse(string id, Email email, Token authToken, Token refreshToken)
-    {
-        Id = id;
-        Email = email;
-        AuthToken = authToken;
-        RefreshToken = refreshToken;
-    }
+    public override bool Success => true;
 
-    public AuthResponse(IManualNetUser user, Token authToken, Token refreshToken)
-        : this(user.Id, user.Email, authToken, refreshToken)
-    {
-    }
-
-    public string Id { get; }
-    public Email Email { get; }
-    public Token AuthToken { get; }
-    public Token RefreshToken { get; }
+    public string Id { get; } = id;
+    public Email Email { get; } = email;
+    public Token AuthToken { get; } = authToken;
+    public Token RefreshToken { get; } = refreshToken;
 }

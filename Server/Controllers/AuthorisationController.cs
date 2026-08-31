@@ -5,7 +5,6 @@ using Server.Model.Auth;
 using Server.Services;
 using Shared.Model.Auth;
 using Shared.Requests;
-using Shared.Responses;
 
 namespace Server.Controllers;
 
@@ -15,6 +14,7 @@ public class AuthorisationController(
     IManualNetUserManager userManager,
     IRefreshTokenManager refreshTokenManager,
     IAuthService authService,
+    IResultFactory resultFactory,
     AppDbContext db) : ControllerBase
 {
     [HttpPost("register/")]
@@ -22,7 +22,7 @@ public class AuthorisationController(
     {
         if (await userManager.FindByEmailAsync(request.Email) is not null)
         {
-            return Results.BadRequest($"Email '{request.Email}' is already registered.");
+            return resultFactory.BadRequest($"Email '{request.Email}' is already registered.");
         }
 
         var user = ManualNetUserEntity.From(request);
@@ -30,11 +30,11 @@ public class AuthorisationController(
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            return Results.BadRequest(result.Errors.Select(e => e.Description));
+            return resultFactory.BadRequest($"Email '{request.Email}' is already registered.");
         }
 
         await userManager.AddToRoleAsync(user, Role.User);
-        return Results.Ok($"User '{request.Email}' registered successfully.");
+        return resultFactory.Ok();
     }
     
     [HttpPost("login/")]
@@ -44,7 +44,7 @@ public class AuthorisationController(
         
         if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
         {
-            return Results.Unauthorized();
+            return resultFactory.Unauthorized();
         }
 
         var roles = await userManager.GetRolesAsync(user);
@@ -55,24 +55,24 @@ public class AuthorisationController(
 
         user.LastLoginAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
-        return Results.Ok(new AuthResponse(user, authToken, refreshToken));
+        return resultFactory.Authorized(user, authToken, refreshToken);
     }
 
     [HttpPost("refresh/")]
     public async Task<IResult> RefreshAsync(RefreshTokenRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        if (string.IsNullOrWhiteSpace(request.RefreshTokenValue))
         {
-            return Results.BadRequest("Refresh token is required.");
+            return resultFactory.BadRequest("Refresh token is required.");
         }
 
-        var tokenHash = authService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = authService.HashRefreshToken(request.RefreshTokenValue);
         
         var storedRefreshToken = await refreshTokenManager.FindByHashAsync(tokenHash);
 
         if (storedRefreshToken is null || !storedRefreshToken.IsActive)
         {
-            return Results.Unauthorized();
+            return resultFactory.Unauthorized();
         }
 
         var roles = await userManager.GetRolesAsync(storedRefreshToken.UserEntity);
@@ -84,23 +84,23 @@ public class AuthorisationController(
         refreshTokenManager.Add(RefreshTokenEntity.From(storedRefreshToken.UserEntity, refreshToken));
 
         await db.SaveChangesAsync();
-        return Results.Ok(new AuthResponse(storedRefreshToken.UserEntity, token, refreshToken));
+        return resultFactory.Authorized(storedRefreshToken.UserEntity, token, refreshToken);
     }
     
     [HttpPost("logout/")]
     public async Task<IResult> RevokeAsync(RefreshTokenRequest request)
     {
-        var tokenHash = authService.HashRefreshToken(request.RefreshToken);
+        var tokenHash = authService.HashRefreshToken(request.RefreshTokenValue);
         
         var token = await refreshTokenManager.FindByHashAsync(tokenHash);
 
         if (token is null || !token.IsActive)
         {
-            return Results.NotFound("Token not found or already inactive.");
+            return resultFactory.Unauthorized();
         }
 
         token.RevokedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
-        return Results.Ok("Refresh token revoked.");
+        return resultFactory.Ok();
     }
 }

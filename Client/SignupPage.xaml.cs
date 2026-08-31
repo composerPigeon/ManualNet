@@ -1,4 +1,5 @@
 using Client.Services;
+using Shared.Exceptions;
 using Shared.Model.Auth;
 using Shared.Requests;
 using Email = Shared.Model.Auth.Email;
@@ -65,12 +66,14 @@ public partial class SignupPage : ContentPage
         {
             var request = new RegisterRequest(email, password, firstName, lastName);
             await _serverProxy.RegisterAsync(request);
+
             await DisplayAlertAsync("Account created", "You can now log in.", "Continue");
             await Shell.Current.GoToAsync($"//{nameof(MainPage)}/{nameof(LoginPage)}");
+
         }
-        catch (ServerProxyException exception)
+        catch (ManualNetException e)
         {
-            ShowError(exception.Message);
+            ShowError(e.Message);
         }
         catch (HttpRequestException)
         {

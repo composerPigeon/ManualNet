@@ -1,3 +1,6 @@
 namespace Shared.Requests;
 
-public record RefreshTokenRequest(string RefreshToken);
+public class RefreshTokenRequest(string refreshTokenValue) : NonAuthorizedRequest
+{
+    public string RefreshTokenValue { get; } = refreshTokenValue;
+}

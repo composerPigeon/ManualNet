@@ -1,18 +1,20 @@
 using Client.Services;
+using Shared.Exceptions;
 using Shared.Model.Auth;
 using Shared.Requests;
+using Shared.Responses;
 using Email = Shared.Model.Auth.Email;
 
 namespace Client;
 
 public partial class LoginPage : ContentPage
 {
-    private readonly IServerProxy _serverProxy;
+    private readonly IServerProxy _proxy;
     private bool _isSubmitting;
 
-    public LoginPage(IServerProxy serverProxy)
+    public LoginPage(IServerProxy proxy)
     {
-        _serverProxy = serverProxy;
+        _proxy = proxy;
         InitializeComponent();
     }
 
@@ -42,13 +44,14 @@ public partial class LoginPage : ContentPage
         SetBusy(true);
         try
         {
-            await _serverProxy.LoginAsync(new LoginRequest(email, password));
+            var authResponse = await _proxy.LoginAsync(new LoginRequest(email, password));
+            
             await DisplayAlertAsync("Logged in", "You have successfully logged in.", "OK");
             await Shell.Current.GoToAsync("..");
         }
-        catch (ServerProxyException exception)
+        catch (ManualNetException e)
         {
-            ShowError(exception.Message);
+            ShowError(e.Message);
         }
         catch (HttpRequestException)
         {

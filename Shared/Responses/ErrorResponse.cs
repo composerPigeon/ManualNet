@@ -1,16 +1,22 @@
+using System.Net;
+using System.Text.Json.Serialization;
 using Shared.Exceptions;
 
 namespace Shared.Responses;
 
-public class ErrorResponse(string message) : ManualNetResponse
+public class ErrorResponse : ManualNetResponse
 {
     public override bool Success => false;
     
-    public string Message { get; } = message;
+    public required string UserMessage { get; init; }
 
     public void Assert()
     {
-        //TODO: more exceptions which will better describe the problem type
-        throw new ManualNetException(Message);
+        throw new ManualNetException(UserMessage);
+    }
+
+    public void AssertWith(HttpStatusCode statusCode)
+    {
+        throw new HttpStatusCodeException(statusCode, UserMessage);
     }
 }

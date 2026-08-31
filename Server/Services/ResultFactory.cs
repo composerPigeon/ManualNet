@@ -1,5 +1,6 @@
 using Shared.Model.Auth;
 using Shared.Responses;
+using System.Net;
 
 namespace Server.Services;
 

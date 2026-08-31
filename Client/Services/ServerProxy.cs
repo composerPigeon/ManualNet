@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Shared.Exceptions;
-using Shared.Model.Auth;
 using Shared.Requests;
 using Shared.Responses;
 
@@ -97,20 +97,13 @@ public sealed class ServerProxy(HttpClient httpClient) : IServerProxy
         if (!message.IsSuccessStatusCode)
         {
             var errorResponse = await ParseErrorAsync(message, cancellationToken);
-            errorResponse.Assert();
+            errorResponse.AssertWith(message.StatusCode);
         }
-        
-        var manualNetResponse = await message.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
-        return manualNetResponse ?? EmptyResponse<TResponse>();
-    }
 
-    private TResponse EmptyResponse<TResponse>()
-        where TResponse : ManualNetResponse
-    {
-        if (typeof(TResponse) == typeof(OkResponse))
-            return ManualNetResponse.Ok<TResponse>();
-        
-        throw new ManualNetException("Unexpected response type");
+        return await ReadContentAsync(
+            message,
+            defaultValue: GetDefaultResponse<TResponse>(),
+            cancellationToken);
     }
 
     private async Task<ErrorResponse> ParseErrorAsync(HttpResponseMessage message, CancellationToken cancellationToken)
@@ -123,8 +116,36 @@ public sealed class ServerProxy(HttpClient httpClient) : IServerProxy
                 return ManualNetResponse.Error("Forbidden access.");
             
             default:
-                var errorResponse = await message.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken);
-                return errorResponse ?? ManualNetResponse.Error("Unexpected error.");
+                return await ReadContentAsync(
+                    message,
+                    defaultValue: ManualNetResponse.Error("Unexpected response from server."),
+                    cancellationToken);
+        }
+    }
+    
+    private TResponse GetDefaultResponse<TResponse>()
+        where TResponse : ManualNetResponse
+    {
+        if (typeof(TResponse) == typeof(OkResponse))
+            return ManualNetResponse.Default<TResponse>();
+        
+        throw new UnexpectedResponseException(
+            userMessage: "Unexpected response from server.",
+            logMessage: $"The server returned an empty response while {typeof(TResponse).Name} was expected.");
+    }
+
+    private async Task<TResponse> ReadContentAsync<TResponse>(HttpResponseMessage message, TResponse defaultValue, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await message.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+            return response ?? defaultValue;
+        }
+        catch (JsonException ex)
+        {
+            throw new UnexpectedResponseException(
+                userMessage: "Unexpected response from server.",
+                logMessage: ex.Message);
         }
     }
     #endregion

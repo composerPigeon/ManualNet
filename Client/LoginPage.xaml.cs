@@ -10,11 +10,13 @@ namespace Client;
 public partial class LoginPage : ContentPage
 {
     private readonly IServerProxy _proxy;
+    private readonly IAuthService _auth;
     private bool _isSubmitting;
 
-    public LoginPage(IServerProxy proxy)
+    public LoginPage(IServerProxy proxy, IAuthService auth)
     {
         _proxy = proxy;
+        _auth = auth;
         InitializeComponent();
     }
 
@@ -45,13 +47,15 @@ public partial class LoginPage : ContentPage
         try
         {
             var authResponse = await _proxy.LoginAsync(new LoginRequest(email, password));
+            await _auth.StoreRefreshTokenAsync(authResponse.RefreshToken);
+            await _auth.StoreAuthTokenAsync(authResponse.AuthToken);
             
             await DisplayAlertAsync("Logged in", "You have successfully logged in.", "OK");
             await Shell.Current.GoToAsync("..");
         }
         catch (ManualNetException e)
         {
-            ShowError(e.Message);
+            ShowError(e.UserMessage);
         }
         catch (HttpRequestException)
         {

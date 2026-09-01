@@ -2,7 +2,6 @@ using Client.Services;
 using Shared.Exceptions;
 using Shared.Model.Auth;
 using Shared.Requests;
-using Email = Shared.Model.Auth.Email;
 
 namespace Client;
 
@@ -35,7 +34,7 @@ public partial class SignupPage : ContentPage
             return;
         }
 
-        if (!Email.TryParseFrom(EmailEntry.Text, out var email))
+        if (!ManualNetEmail.TryParseFrom(EmailEntry.Text, out var email))
         {
             ShowError("Enter a valid email address.");
             return;

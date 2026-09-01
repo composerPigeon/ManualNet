@@ -18,7 +18,7 @@ public class ManualNetUserEntity : IdentityUser, IManualNetUser, IEntityBase<str
     public DateTime LastLoginAt { get; set; }
 
     [MaxLength(ManualNetUserEntityContext.EmailMaxLength)]
-    public new Email Email
+    public new ManualNetEmail Email
     {
         get => base.Email;
         private init => base.Email = value.ToString();

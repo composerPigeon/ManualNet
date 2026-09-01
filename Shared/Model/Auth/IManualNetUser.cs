@@ -6,5 +6,5 @@ public interface IManualNetUser
     
     public string FirstName { get; }
     public string LastName { get; }
-    public Email Email { get; }
+    public ManualNetEmail Email { get; }
 }

@@ -7,7 +7,7 @@ namespace Server.Data.Managers;
 
 public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity, string>
 {
-    public Task<ManualNetUserEntity?> FindByEmailAsync(Email email);
+    public Task<ManualNetUserEntity?> FindByEmailAsync(ManualNetEmail email);
     
     public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, Password password);
     public Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role);
@@ -36,7 +36,7 @@ public class ManualNetUserManager(
         services,
         logger), IManualNetUserManager
 {
-    public Task<ManualNetUserEntity?> FindByEmailAsync(Email email)
+    public Task<ManualNetUserEntity?> FindByEmailAsync(ManualNetEmail email)
     {
         return base.FindByEmailAsync(email.ToString());
     }

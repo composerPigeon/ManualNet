@@ -65,11 +65,19 @@ builder.Services.AddControllers();
 
 builder.Services.AddAuthorization();
 
+// Add singletons
+builder.Services
+    .AddTransient<IRefreshTokenManager, RefreshTokenManager>()
+    .AddTransient<IManualNetUserManager, ManualNetUserManager>()
+    .AddTransient<IManualManager, ManualManager>()
+    .AddTransient<IProductManager, ProductManager>()
+    .AddTransient<IManufacturerManager, ManufacturerManager>()
+    .AddTransient<IUserManualRelationManager, UserManualRelationManager>();
+
+// Add transients
 builder.Services
     .AddTransient<IAuthService, AuthService>()
-    .AddTransient<IResultFactory, ResultFactory>()
-    .AddTransient<IRefreshTokenManager, RefreshTokenManager>()
-    .AddTransient<IManualNetUserManager, ManualNetUserManager>();
+    .AddTransient<IResultFactory, ResultFactory>();
 
 var app = builder.Build();
 

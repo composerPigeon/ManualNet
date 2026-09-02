@@ -53,7 +53,7 @@ public class AuthorisationController(
 
         refreshTokenManager.Add(RefreshTokenEntity.From(user, refreshToken));
 
-        user.LastLoginAt = DateTime.UtcNow;
+        user.Login(DateTime.UtcNow);
         await db.SaveChangesAsync();
         return resultFactory.Authorized(user, authToken, refreshToken);
     }

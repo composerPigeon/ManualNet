@@ -16,7 +16,7 @@ public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity, str
     public Task<IList<Role>> GetRolesAsync(ManualNetUserEntity user);
 }
 
-public class ManualNetUserManager(
+public sealed class ManualNetUserManager(
     IUserStore<ManualNetUserEntity> store,
     IOptions<IdentityOptions> optionsAccessor,
     IPasswordHasher<ManualNetUserEntity> passwordHasher,

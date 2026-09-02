@@ -1,4 +1,3 @@
-using System.Net;
 using Shared.Model.Auth;
 
 namespace Shared.Responses;

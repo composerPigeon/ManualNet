@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Server.Data.EntityContexts;
-using Shared.Model.Auth;
+using Server.Model;
 
 namespace Server.Model.Auth;
 

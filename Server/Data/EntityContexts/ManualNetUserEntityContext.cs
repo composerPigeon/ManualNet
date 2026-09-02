@@ -1,24 +1,21 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Server.Model.Auth;
 
 namespace Server.Data.EntityContexts;
 
-public static class ManualNetUserEntityContext
+public sealed class ManualNetUserEntityContext : EntityContextBase<ManualNetUserEntity, string>
 {
-    public const int NameMaxLength = 64;
-    public const int EmailMaxLength = 256;
-    
-    public static void MapUserContext(this ModelBuilder builder)
-    {
-        builder.Entity<ManualNetUserEntity>(user =>
-        {
-            user.Property(x => x.FirstName)
-                .HasMaxLength(NameMaxLength)
-                .IsRequired();
 
-            user.Property(x => x.LastName)
-                .HasMaxLength(NameMaxLength)
-                .IsRequired();
-        });
+    protected override void MapProperties(EntityTypeBuilder<ManualNetUserEntity> entity)
+    {
+        base.MapProperties(entity);
+
+        entity.Property(x => x.FirstName)
+            .HasMaxLength(IEntityContext.MaxNameLength)
+            .IsRequired();
+
+        entity.Property(x => x.LastName)
+            .HasMaxLength(IEntityContext.MaxNameLength)
+            .IsRequired();
     }
 }

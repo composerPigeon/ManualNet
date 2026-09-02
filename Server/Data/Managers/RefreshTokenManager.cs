@@ -9,11 +9,9 @@ public interface IRefreshTokenManager : IDbSetEntityManager<RefreshTokenEntity, 
     public Task<RefreshTokenEntity?> FindByHashAsync(string tokenHash);
 }
 
-public class RefreshTokenManager(AppDbContext context)
+public sealed class RefreshTokenManager(AppDbContext context)
     : DbSetEntityManager<RefreshTokenEntity, Guid>(context), IRefreshTokenManager
 {
-    protected override DbSet<RefreshTokenEntity> Entities => Context.RefreshTokens;
-    
     public IEnumerable<RefreshTokenEntity> FindAllActiveTokensForUser(ManualNetUserEntity userEntity)
     {
         return Entities

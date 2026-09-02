@@ -1,8 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using Server.Model;
+
 namespace Server.Data.Managers;
 
-public interface IEntityManager<TEntity, in TKey>
+public interface IEntityManager;
+
+public interface IEntityManager<TEntity, in TKey> : IEntityManager
     where TEntity : class, IEntityBase<TKey>
     where TKey : IEquatable<TKey>
 {

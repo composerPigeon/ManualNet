@@ -100,9 +100,8 @@ public sealed class ServerProxy(HttpClient httpClient) : IServerProxy
             errorResponse.AssertWith(message.StatusCode);
         }
 
-        return await ReadContentAsync(
+        return await ReadContentAsync<TResponse>(
             message,
-            defaultValue: GetDefaultResponse<TResponse>(),
             cancellationToken);
     }
 
@@ -118,8 +117,8 @@ public sealed class ServerProxy(HttpClient httpClient) : IServerProxy
             default:
                 return await ReadContentAsync(
                     message,
-                    defaultValue: ManualNetResponse.Error("Unexpected response from server."),
-                    cancellationToken);
+                    cancellationToken,
+                    defaultValue: ManualNetResponse.Error("Unexpected response from server."));
         }
     }
     
@@ -134,12 +133,13 @@ public sealed class ServerProxy(HttpClient httpClient) : IServerProxy
             logMessage: $"The server returned an empty response while {typeof(TResponse).Name} was expected.");
     }
 
-    private async Task<TResponse> ReadContentAsync<TResponse>(HttpResponseMessage message, TResponse defaultValue, CancellationToken cancellationToken)
+    private async Task<TResponse> ReadContentAsync<TResponse>(HttpResponseMessage message, CancellationToken cancellationToken, TResponse? defaultValue = null)
+        where TResponse : ManualNetResponse
     {
         try
         {
             var response = await message.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
-            return response ?? defaultValue;
+            return response ?? defaultValue ?? GetDefaultResponse<TResponse>();
         }
         catch (JsonException ex)
         {

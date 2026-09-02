@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Shared.Model.Auth;
 
 namespace Shared.Responses;

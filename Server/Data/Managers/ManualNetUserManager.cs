@@ -11,6 +11,7 @@ public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity, str
     
     public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, Password password);
     public Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role);
+    public Task<bool> IsInRoleAsync(ManualNetUserEntity user, Role role);
     public Task<bool> CheckPasswordAsync(ManualNetUserEntity user, Password password);
     public Task<IList<Role>> GetRolesAsync(ManualNetUserEntity user);
 }
@@ -50,6 +51,11 @@ public class ManualNetUserManager(
     public Task<IdentityResult> AddToRoleAsync(ManualNetUserEntity user, Role role)
     {
         return base.AddToRoleAsync(user, role.Name);
+    }
+
+    public Task<bool> IsInRoleAsync(ManualNetUserEntity user, Role role)
+    {
+        return base.IsInRoleAsync(user, role.Name);
     }
 
     public Task<IdentityResult> CreateAsync(ManualNetUserEntity user, Password password)

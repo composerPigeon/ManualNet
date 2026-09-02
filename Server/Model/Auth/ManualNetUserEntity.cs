@@ -24,6 +24,11 @@ public class ManualNetUserEntity : IdentityUser, IManualNetUser, IEntityBase<str
         private init => base.Email = value.ToString();
     }
 
+    public override string ToString()
+    {
+        return $"User(email: {Email}, id: {Id})";
+    }
+
     public static ManualNetUserEntity From(RegisterRequest request)
     {
         return new ManualNetUserEntity

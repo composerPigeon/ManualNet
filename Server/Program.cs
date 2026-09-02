@@ -9,6 +9,7 @@ using Server.Data.Managers;
 using Server.Model.Auth;
 using Server.Options;
 using Server.Services;
+using Shared.Model.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddOptions<JwtOptions>()
     .BindConfiguration(JwtOptions.SectionName);
+builder.Services.AddOptions<AdminUserOptions>()
+    .BindConfiguration(AdminUserOptions.SectionName)
+    .Validate(options => !string.IsNullOrWhiteSpace(options.FirstName), "Admin first name is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.LastName), "Admin last name is required.")
+    .Validate(options => ManualNetEmail.TryParseFrom(options.Email, out _), "Admin email is invalid.")
+    .Validate(options => Password.TryParse(options.Password, out _), "Admin password does not meet password requirements.")
+    .ValidateOnStart();
 
 var jwtOptions = builder.Configuration
     .GetSection(JwtOptions.SectionName)
@@ -79,6 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 await app.CreateInitialRolesAsync();
+await app.CreateInitialAdminAsync();
 
 app.MapControllers();
 

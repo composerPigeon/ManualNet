@@ -3,7 +3,7 @@ using Server.Model.Domain;
 
 namespace Server.Data.EntityContexts;
 
-public sealed class ManufacturerEntityContext : EntityContextBase<ManufacturerEntity, Guid>
+public sealed class ManufacturerEntityContext : EntityContextBase<ManufacturerEntity>
 {
     protected override void MapProperties(EntityTypeBuilder<ManufacturerEntity> entity)
     {

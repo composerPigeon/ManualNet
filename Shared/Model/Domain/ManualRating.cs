@@ -9,7 +9,10 @@ public readonly struct ManualRating
     private const ushort MaxValue = 10;
     private const ushort MinValue = 0;
     
-    public ushort Value { get; init; }
+    public ushort Value { get; private init; }
+
+    public int AsInt32() => Value;
+    public decimal AsDecimal() => Value;
 
     public static ManualRating Parse(int value)
     {

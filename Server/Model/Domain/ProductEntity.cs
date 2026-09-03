@@ -1,35 +1,40 @@
 using System.ComponentModel.DataAnnotations;
+using Server.Data;
 using Server.Data.EntityContexts;
 using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class ProductEntity : DtoEntityBase<ProductDto>
+public class ProductEntity : IDtoEntity<ProductDto>
 {
+    public string Id { get; private set; } = string.Empty;
+
     [MaxLength(IEntityContext.MaxNameLength)]
-    public string Name { get; private set; }
+    public string Name { get; private set; } = string.Empty;
     
     [MaxLength(IEntityContext.MaxDescriptionLength)]
     public string? Description { get; private set; }
     
     public ManufacturerEntity Manufacturer { get; private set; }
 
-    public override ProductDto AsDto()
+    public ProductDto AsDto()
     {
         return new ProductDto
         {
             Id = Id,
             Name = Name,
             Description = Description ?? string.Empty,
-            Manufacturer = Manufacturer.AsDto()
+            ManufacturerId = Manufacturer.Id,
         };
     }
 
-    public override void InitDataFrom(ProductDto dto)
+    public static ProductEntity Create(ProductDto dto, ManufacturerEntity manufacturer)
     {
-        Id =  dto.Id;
-        Name = dto.Name;
-        Description = dto.Description;
-        Manufacturer = IDtoEntity.CreateFrom<ManufacturerEntity,ManufacturerDto>(dto.Manufacturer);
+        return new ProductEntity
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            Manufacturer = manufacturer,
+        };
     }
 }

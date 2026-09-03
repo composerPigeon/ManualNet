@@ -5,9 +5,8 @@ namespace Server.Data.EntityContexts;
 
 public interface IEntityContextCollection
 {
-    public void RegisterContext<TEntity, TKey>(Func<EntityContextBase<TEntity, TKey>> ctor)
-        where TEntity : class, IEntityBase<TKey>
-        where TKey : IEquatable<TKey>;
+    public void RegisterContext<TEntity>(Func<EntityContextBase<TEntity>> ctor)
+        where TEntity : class, IEntityBase;
     
     public IEnumerable<IEntityContext> GetAllContexts();
 }
@@ -16,9 +15,8 @@ public class EntityContextCollection : IEntityContextCollection
 {
     private readonly Dictionary<Type, Func<IEntityContext>> _contexts = new ();
 
-    public void RegisterContext<TEntity, TKey>(Func<EntityContextBase<TEntity, TKey>> ctor)
-        where TEntity : class, IEntityBase<TKey>
-        where TKey : IEquatable<TKey>
+    public void RegisterContext<TEntity>(Func<EntityContextBase<TEntity>> ctor)
+        where TEntity : class, IEntityBase
     {
         _contexts.Add(typeof(TEntity), ctor);
     }

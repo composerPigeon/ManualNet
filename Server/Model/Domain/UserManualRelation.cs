@@ -1,41 +1,57 @@
 using System.ComponentModel.DataAnnotations;
+using Server.Data;
 using Server.Data.EntityContexts;
 using Server.Model.Auth;
 using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class UserManualRelation : DtoEntityBase<ManualDto>
+public class UserManualRelation : IDtoEntity<UserManualRelationDto>, IDtoEntity<ManualWithRelationDto>
 {
+    public string Id { get; private set; } = string.Empty;
     public ManualRating Rating { get; private set; }
     
     [MaxLength(IEntityContext.MaxNameLength)]
-    public required string LocalFileName { get; init; }
+    public string LocalFileName { get; private set; } = string.Empty;
     
-    public required ManualNetUserEntity User { get; init; }
-    public required ManualEntity Manual { get; init; }
+    public ManualNetUserEntity User { get; private set; }
+    
+    public ManualEntity Manual { get; private set; }
 
     public void UpdateRating(ManualRating rating)
     {
         Rating = rating;
     }
 
-    public override ManualDto AsDto()
+    public UserManualRelationDto AsDto()
     {
-        return new ManualDto
+        return new UserManualRelationDto
         {
-            Id = Manual.Id,
-            AddedAt = Manual.AddedAt,
-            Language = Manual.Language,
-
-            FileName = LocalFileName,
+            Id = Id,
+            LocalFileName = LocalFileName,
             Rating = Rating,
-            Product =  Manual.Product.AsDto(),
+            UserId = User.Id,
+            ManualId = Manual.Id
         };
     }
 
-    public override void InitDataFrom(ManualDto dto)
+    ManualWithRelationDto IDtoEntity<ManualWithRelationDto>.AsDto()
     {
-        throw new NotImplementedException();
+        return new ManualWithRelationDto
+        {
+            Relation = AsDto(),
+            Manual = Manual.AsDto()
+        };
+    }
+
+    public static UserManualRelation Create(UserManualRelationDto dto, ManualEntity manual, ManualNetUserEntity user)
+    {
+        return new UserManualRelation
+        {
+            LocalFileName = dto.LocalFileName,
+            Rating = dto.Rating,
+            Manual = manual,
+            User = user
+        };
     }
 }

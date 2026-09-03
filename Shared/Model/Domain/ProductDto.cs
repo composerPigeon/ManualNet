@@ -1,11 +1,11 @@
 namespace Shared.Model.Domain;
 
-public class ProductDto : IEntityDto<Guid>
+public class ProductDto : IEntityDto
 {
-    public Guid Id { get; init; }
-    public string Name { get; init; }
+    public string Id { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
     
-    public string Description { get; init; }
+    public string? Description { get; init; }
     
-    public ManufacturerDto Manufacturer { get; init; }
+    public string ManufacturerId { get; init; } = string.Empty;
 }

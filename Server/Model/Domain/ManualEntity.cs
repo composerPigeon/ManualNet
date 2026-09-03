@@ -1,31 +1,33 @@
+using Server.Data;
 using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class ManualEntity : DtoEntityBase<ManualDto>
+public class ManualEntity : IDtoEntity<ManualDto>
 {
+    public string Id { get; private set; } = string.Empty;
     public DateTime AddedAt { get; private set; }
     public Language Language { get; private set; }
-
     public ProductEntity Product { get; private set; }
 
-    public override ManualDto AsDto()
+    public ManualDto AsDto()
     {
         return new ManualDto
         {
             Id = Id,
             AddedAt = AddedAt,
             Language = Language,
-            FileName = string.Empty,
-            Rating = default,
-            Product = Product.AsDto()
+            ProductId = Product.Id,
         };
     }
 
-    public override void InitDataFrom(ManualDto dto)
+    public static ManualEntity Create(ManualDto dto, ProductEntity product)
     {
-        AddedAt = dto.AddedAt;
-        Language = dto.Language;
-        Product = IDtoEntity.CreateFrom<ProductEntity,ProductDto>(dto.Product);
+        return new ManualEntity
+        {
+            AddedAt = DateTime.UtcNow,
+            Language = dto.Language,
+            Product = product,
+        };
     }
 }

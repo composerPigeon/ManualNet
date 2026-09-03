@@ -5,7 +5,7 @@ using Shared.Model.Auth;
 
 namespace Server.Data.Managers;
 
-public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity, string>
+public interface IManualNetUserManager : IEntityManager<ManualNetUserEntity>
 {
     public Task<ManualNetUserEntity?> FindByEmailAsync(ManualNetEmail email);
     

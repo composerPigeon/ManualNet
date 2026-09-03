@@ -2,9 +2,9 @@ using Server.Model.Domain;
 
 namespace Server.Data.Managers;
 
-public interface IManufacturerManager : IDbSetEntityManager<ManufacturerEntity, Guid>;
+public interface IManufacturerManager : IDbSetEntityManager<ManufacturerEntity>;
 
-public class ManufacturerManager(AppDbContext context) : DbSetEntityManager<ManufacturerEntity, Guid>(context), IManufacturerManager
+public class ManufacturerManager(AppDbContext context) : DbSetEntityManager<ManufacturerEntity>(context), IManufacturerManager
 {
     
 }

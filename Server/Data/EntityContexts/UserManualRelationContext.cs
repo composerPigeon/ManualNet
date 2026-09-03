@@ -4,7 +4,7 @@ using Server.Model.Domain;
 
 namespace Server.Data.EntityContexts;
 
-public class UserManualRelationContext : EntityContextBase<UserManualRelation, Guid>
+public class UserManualRelationContext : EntityContextBase<UserManualRelation>
 {
     protected override void MapProperties(EntityTypeBuilder<UserManualRelation> entity)
     {
@@ -24,6 +24,6 @@ public class UserManualRelationContext : EntityContextBase<UserManualRelation, G
         entity.HasOne(r => r.Manual)
             .WithMany()
             .HasForeignKey("ManualId")
-            .OnDelete(DeleteBehavior.Cascade);;
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

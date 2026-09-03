@@ -1,5 +1,5 @@
+using Shared.Model;
 using Shared.Model.Auth;
-using Shared.Model.Domain;
 
 namespace Shared.Responses;
 
@@ -17,11 +17,13 @@ public abstract class ManualNetResponse
         return new OkResponse();
     }
 
-    public static ManualListResponse ManualList(IEnumerable<ManualDto> manuals)
+    public static TResponse List<TResponse, TDto>(IEnumerable<TDto> items)
+        where TResponse : ManualNetListResponseBase<TDto>, new()
+        where TDto : IEntityDto
     {
-        return new ManualListResponse
+        return new TResponse
         {
-            Manuals = manuals
+            Items = items
         };
     }
 
@@ -31,8 +33,8 @@ public abstract class ManualNetResponse
         return (TResponse)(ManualNetResponse)new OkResponse();
     }
 
-    public static AuthResponse Auth(IManualNetUser user, Token authToken, Token refreshToken)
+    public static AuthResponse Auth(ManualNetUserDto userDto, Token authToken, Token refreshToken)
     {
-        return new AuthResponse(user.Id, user.Email, authToken, refreshToken);
+        return new AuthResponse(userDto.Email, authToken, refreshToken);
     }
 }

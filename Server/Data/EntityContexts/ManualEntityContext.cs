@@ -6,17 +6,12 @@ using Shared.Model.Domain;
 
 namespace Server.Data.EntityContexts;
 
-public sealed class ManualEntityContext : EntityContextBase<ManualEntity, Guid>
+public sealed class ManualEntityContext : EntityContextBase<ManualEntity>
 {
     protected override void MapProperties(EntityTypeBuilder<ManualEntity> entity)
     {
         base.MapProperties(entity);
         
-        entity.HasKey(m => m.Id);
-
-        entity.Property(m => m.Id)
-            .IsRequired();
-
         entity.Property(m => m.AddedAt)
             .IsRequired();
 

@@ -23,8 +23,14 @@ public static class InitAdminUserExtension
 
         if (user is null)
         {
-            var request = new RegisterRequest(email, password, options.FirstName, options.LastName);
-            user = ManualNetUserEntity.From(request);
+            var userDto = new ManualNetUserDto
+            {
+                Email = email,
+                FirstName = options.FirstName,
+                LastName = options.LastName,
+            };
+            
+            user = ManualNetUserEntity.Create(userDto);
 
             var createResult = await userManager.CreateAsync(user, password);
             EnsureSucceeded(createResult, "create the initial administrator account");

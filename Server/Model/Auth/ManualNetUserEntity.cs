@@ -7,7 +7,7 @@ using Shared.Requests;
 
 namespace Server.Model.Auth;
 
-public class ManualNetUserEntity : IdentityUser, IManualNetUser, IEntityBase<string>
+public class ManualNetUserEntity : IdentityUser, IDtoEntity<ManualNetUserDto>
 {
     [MaxLength(IEntityContext.MaxNameLength)]
     public string FirstName { get; private init; } = string.Empty;
@@ -33,14 +33,24 @@ public class ManualNetUserEntity : IdentityUser, IManualNetUser, IEntityBase<str
         LastLoginAt = loginAt;
     }
 
-    public static ManualNetUserEntity From(RegisterRequest request)
+    public ManualNetUserDto AsDto()
+    {
+        return new ManualNetUserDto
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email,
+        };
+    }
+
+    public static ManualNetUserEntity Create(ManualNetUserDto dto)
     {
         return new ManualNetUserEntity
         {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Email = request.Email,
-            UserName = request.Email.ToString(),
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            UserName = dto.Email.ToString(),
             CreatedAt = DateTime.UtcNow,
             LastLoginAt = DateTime.UtcNow
         };

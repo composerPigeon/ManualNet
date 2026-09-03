@@ -6,8 +6,8 @@ namespace Server.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/secured")]
-public class SecuredController : ControllerBase
+[Route("/profile")]
+public class ProfileController : ControllerBase
 {
     [HttpGet]
     public IActionResult Get()

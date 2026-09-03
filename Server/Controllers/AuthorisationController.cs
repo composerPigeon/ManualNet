@@ -20,17 +20,17 @@ public class AuthorisationController(
     [HttpPost("register/")]
     public async Task<IResult> RegisterAsync(RegisterRequest request)
     {
-        if (await userManager.FindByEmailAsync(request.Email) is not null)
+        if (await userManager.FindByEmailAsync(request.User.Email) is not null)
         {
-            return resultFactory.BadRequest($"Email '{request.Email}' is already registered.");
+            return resultFactory.BadRequest($"Email '{request.User.Email}' is already registered.");
         }
 
-        var user = ManualNetUserEntity.From(request);
+        var user = ManualNetUserEntity.Create(request.User);
 
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            return resultFactory.BadRequest($"Email '{request.Email}' is already registered.");
+            return resultFactory.BadRequest($"Email '{request.User.Email}' is already registered.");
         }
 
         await userManager.AddToRoleAsync(user, Role.User);
@@ -51,7 +51,7 @@ public class AuthorisationController(
         var authToken = authService.CreateAuthToken(user, roles);
         var refreshToken = authService.CreateRefreshToken();
 
-        refreshTokenManager.Add(RefreshTokenEntity.From(user, refreshToken));
+        refreshTokenManager.Add(RefreshTokenEntity.Create(user, refreshToken));
 
         user.Login(DateTime.UtcNow);
         await db.SaveChangesAsync();
@@ -75,16 +75,17 @@ public class AuthorisationController(
             return resultFactory.Unauthorized();
         }
 
-        var roles = await userManager.GetRolesAsync(storedRefreshToken.UserEntity);
-        var token = authService.CreateAuthToken(storedRefreshToken.UserEntity, roles);
+        var roles = await userManager.GetRolesAsync(storedRefreshToken.User);
+        var token = authService.CreateAuthToken(storedRefreshToken.User, roles);
         var refreshToken = authService.CreateRefreshToken();
 
         storedRefreshToken.RevokedAt = DateTime.UtcNow;
 
-        refreshTokenManager.Add(RefreshTokenEntity.From(storedRefreshToken.UserEntity, refreshToken));
+        var newTokenEntity = RefreshTokenEntity.Create(storedRefreshToken.User, refreshToken);
+        refreshTokenManager.Add(newTokenEntity);
 
         await db.SaveChangesAsync();
-        return resultFactory.Authorized(storedRefreshToken.UserEntity, token, refreshToken);
+        return resultFactory.Authorized(storedRefreshToken.User, token, refreshToken);
     }
     
     [HttpPost("logout/")]

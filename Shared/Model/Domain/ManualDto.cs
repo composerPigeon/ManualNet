@@ -1,13 +1,12 @@
 namespace Shared.Model.Domain;
 
-public class ManualDto : IEntityDto<Guid>
+public class ManualDto : IEntityDto
 {
-    public Guid Id { get; init; }
+    public string Id { get; init; } = string.Empty;
     public Language Language { get; init; }
     public DateTime AddedAt { get; init; }
     
-    public ManualRating Rating { get; init; }
-    public string FileName { get; init; } = string.Empty;
+    public decimal AverageRating { get; init; }
     
-    public ProductDto Product { get; init; }
+    public string ProductId { get; init; } = string.Empty;
 }

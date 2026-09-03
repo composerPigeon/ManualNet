@@ -4,24 +4,32 @@ using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class ManufacturerEntity : DtoEntityBase<ManufacturerDto>
+public class ManufacturerEntity : IDtoEntity<ManufacturerDto>
 {
+    public string Id { get; private set; } = string.Empty;
+
     [MaxLength(IEntityContext.MaxNameLength)]
     public string Name { get; init; }
 
     [MaxLength(IEntityContext.MaxDescriptionLength)]
     public string? Description { get; init; }
 
-    public override ManufacturerDto AsDto()
+    public ManufacturerDto AsDto()
     {
         return new ManufacturerDto
         {
-            Id = Id
+            Id = Id,
+            Name = Name,
+            Description = Description
         };
     }
 
-    public override void InitDataFrom(ManufacturerDto dto)
+    public static ManufacturerEntity Create(ManufacturerDto dto)
     {
-        throw new NotImplementedException();
+        return new ManufacturerEntity
+        {
+            Name = dto.Name,
+            Description = dto.Description
+        };
     }
 }

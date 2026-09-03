@@ -51,17 +51,17 @@ public sealed class AuthenticationTests(ManualNetWebApplicationFactory factory)
         using var registerResponse = await _client.PostAsJsonAsync("auth/register/", registration, CurrentCancellationToken);
         registerResponse.EnsureSuccessStatusCode();
 
-        var validLogin = new LoginRequest(registration.Email, Password.Parse(ValidPassword));
+        var validLogin = new LoginRequest(registration.User.Email, Password.Parse(ValidPassword));
         using var loginResponse = await _client.PostAsJsonAsync("auth/login/", validLogin, CurrentCancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
         var authentication = await loginResponse.Content.ReadFromJsonAsync<AuthResponse>(CurrentCancellationToken);
         Assert.NotNull(authentication);
-        Assert.NotEmpty(authentication.Id);
+        Assert.Equal(registration.User.Email, authentication.Email);
         Assert.NotEmpty(authentication.AuthToken.Value);
         Assert.NotEmpty(authentication.RefreshToken.Value);
 
-        var invalidLogin = new LoginRequest(registration.Email, Password.Parse("Incorrect123!"));
+        var invalidLogin = new LoginRequest(registration.User.Email, Password.Parse("Incorrect123!"));
         using var invalidResponse = await _client.PostAsJsonAsync("auth/login/", invalidLogin, CurrentCancellationToken);
         Assert.Equal(HttpStatusCode.Unauthorized, invalidResponse.StatusCode);
     }
@@ -109,7 +109,7 @@ public sealed class AuthenticationTests(ManualNetWebApplicationFactory factory)
         using var registerResponse = await _client.PostAsJsonAsync("auth/register/", registration, CurrentCancellationToken);
         registerResponse.EnsureSuccessStatusCode();
 
-        var login = new LoginRequest(registration.Email, Password.Parse(ValidPassword));
+        var login = new LoginRequest(registration.User.Email, Password.Parse(ValidPassword));
         using var loginResponse = await _client.PostAsJsonAsync("auth/login/", login, CurrentCancellationToken);
         loginResponse.EnsureSuccessStatusCode();
 
@@ -120,6 +120,7 @@ public sealed class AuthenticationTests(ManualNetWebApplicationFactory factory)
     private static RegisterRequest CreateRegistration()
     {
         var email = $"integration-{Guid.NewGuid():N}@example.com";
-        return new RegisterRequest(email, Password.Parse(ValidPassword), "Test", "User");
+        var userDto = new ManualNetUserDto { Email = email, FirstName = "John", LastName = "Doe" };
+        return new RegisterRequest(userDto, Password.Parse(ValidPassword));
     }
 }

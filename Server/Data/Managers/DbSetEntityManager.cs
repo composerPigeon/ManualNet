@@ -3,24 +3,28 @@ using Server.Model;
 
 namespace Server.Data.Managers;
 
-public interface IDbSetEntityManager<TEntity, in TKey> : IEntityManager<TEntity, TKey>
-    where TEntity : class, IEntityBase<TKey>
-    where TKey : IEquatable<TKey>
+public interface IDbSetEntityManager<TEntity> : IEntityManager<TEntity>
+    where TEntity : class, IEntityBase
 {
+    public IEnumerable<TEntity> GetAll();
     public void Add(TEntity entity);
     public void Remove(TEntity entity);
 }
 
-public abstract class DbSetEntityManager<TEntity, TKey>(AppDbContext context)
-    : EntityManager<TEntity, TKey>(context), IDbSetEntityManager<TEntity, TKey>
-    where TEntity : class, IEntityBase<TKey>
-    where TKey : IEquatable<TKey>
+public abstract class DbSetEntityManager<TEntity>(AppDbContext context)
+    : EntityManager<TEntity>(context), IDbSetEntityManager<TEntity>
+    where TEntity : class, IEntityBase
 {
     protected DbSet<TEntity> Entities => Context.Set<TEntity>();
 
-    public override Task<TEntity?> FindByIdAsync(TKey id)
+    public override Task<TEntity?> FindByIdAsync(string id)
     {
         return Entities.Where(e => e.Id.Equals(id)).SingleOrDefaultAsync();
+    }
+
+    public IEnumerable<TEntity> GetAll()
+    {
+        return Entities;
     }
 
     public void Add(TEntity entity)

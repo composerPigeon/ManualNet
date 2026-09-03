@@ -3,7 +3,7 @@ using Server.Model.Auth;
 
 namespace Server.Data.EntityContexts;
 
-public sealed class ManualNetUserEntityContext : EntityContextBase<ManualNetUserEntity, string>
+public sealed class ManualNetUserEntityContext : EntityContextBase<ManualNetUserEntity>
 {
 
     protected override void MapProperties(EntityTypeBuilder<ManualNetUserEntity> entity)

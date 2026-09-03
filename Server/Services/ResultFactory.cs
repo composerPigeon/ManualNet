@@ -1,6 +1,9 @@
+using Server.Model.Auth;
 using Shared.Model.Auth;
 using Shared.Responses;
 using Server.Model.Domain;
+using Shared.Model;
+using Shared.Model.Domain;
 
 namespace Server.Services;
 
@@ -8,9 +11,12 @@ public interface IResultFactory
 {
     public IResult Ok();
 
-    public IResult Manuals(IEnumerable<UserManualRelation> manuals);
+    public IResult List<TResponse, TItem, TDtoItem>(IEnumerable<TItem> items)
+        where TResponse : ManualNetListResponseBase<TDtoItem>, new()
+        where TItem : IDtoEntity<TDtoItem>
+        where TDtoItem : IEntityDto;
 
-    public IResult Authorized(IManualNetUser user, Token authToken, Token refreshToken);
+    public IResult Authorized(ManualNetUserEntity userDto, Token authToken, Token refreshToken);
     
     public IResult Unauthorized();
     public IResult BadRequest(string errorMessage);
@@ -25,16 +31,18 @@ public class ResultFactory : IResultFactory
         return Results.Ok(okResponse);
     }
 
-    public IResult Manuals(IEnumerable<UserManualRelation> manuals)
+    public IResult List<TResponse, TItem, TDtoItem>(IEnumerable<TItem> items)
+        where TResponse : ManualNetListResponseBase<TDtoItem>, new()
+        where TItem : IDtoEntity<TDtoItem>
+        where TDtoItem : IEntityDto
     {
-        var dtoList = manuals.Select(m => m.AsDto()).ToList();
-        var response = ManualNetResponse.ManualList(dtoList);
+        var response = ManualNetResponse.List<TResponse, TDtoItem>(items.Select(it => it.AsDto()));
         return Results.Ok(response);
     }
     
-    public IResult Authorized(IManualNetUser user, Token authToken, Token refreshToken)
+    public IResult Authorized(ManualNetUserEntity user, Token authToken, Token refreshToken)
     {
-        var authResponse = ManualNetResponse.Auth(user, authToken, refreshToken);
+        var authResponse = ManualNetResponse.Auth(user.AsDto(), authToken, refreshToken);
         return Results.Ok(authResponse);
     }
     

@@ -68,3 +68,52 @@ Accept: application/json
 
 GET {{Server_HostAddress}}/manuals/
 Authorization: Bearer {{jwt_token}}
+
+###
+
+POST {{Server_HostAddress}}/manufacturers/
+Authorization: Bearer {{jwt_token}}
+
+{
+    "manufacturer": {
+        "id": "",
+        "name": "Samsung ltd.",
+        "description": "Biggest word electronic divices manufacturer"
+    }
+}
+
+> {%
+    client.global.set("manufacturerId", response.body.id);
+%}
+
+###
+
+POST {{Server_HostAddress}}/products/
+Authorization: Bearer {{jwt_token}}
+
+{
+    "product": {
+        "name": "Dish washer 3000",
+        "description": "Machine to automatically wah the dishes.",
+        "manufacturerId": "{{manufacturerId}}
+    }
+}
+
+POST {{Server_HostAddress}}/manuals/
+Authorization: Bearer {{jwt_token}}
+
+{
+    "relation": {
+        "id": "",
+        "rating": 5,
+        "localFileName": "file.pdf",
+        "manualId": "",
+        "userId": ""
+    },
+    
+    "manual": {
+        "id": "",
+        ""
+    
+    }
+}

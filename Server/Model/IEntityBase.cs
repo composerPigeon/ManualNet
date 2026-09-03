@@ -2,8 +2,7 @@ using Server.Data.EntityContexts;
 
 namespace Server.Model;
 
-public interface IEntityBase<out TKey>
-    where TKey : IEquatable<TKey>
+public interface IEntityBase
 {
-    public TKey Id { get; }
+    public string Id { get; }
 }

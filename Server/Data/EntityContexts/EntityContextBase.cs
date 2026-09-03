@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Server.Model;
 namespace Server.Data.EntityContexts;
 
@@ -11,9 +12,8 @@ public interface IEntityContext
     public void MapBuilder(ModelBuilder builder);
 }
 
-public abstract class EntityContextBase<TEntity, TKey> : IEntityContext
-    where TEntity : class, IEntityBase<TKey>
-    where TKey : IEquatable<TKey>
+public abstract class EntityContextBase<TEntity> : IEntityContext
+    where TEntity : class, IEntityBase
 {
     public void MapBuilder(ModelBuilder builder)
     {
@@ -23,5 +23,11 @@ public abstract class EntityContextBase<TEntity, TKey> : IEntityContext
     protected virtual void MapProperties(EntityTypeBuilder<TEntity> entity)
     {
         entity.HasKey(e => e.Id);
+
+        entity.Property(e => e.Id)
+            .IsRequired()
+            .HasSentinel(string.Empty)
+            .HasValueGenerator<StringValueGenerator>()
+            .ValueGeneratedOnAdd();
     }
 }

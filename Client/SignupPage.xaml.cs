@@ -63,7 +63,8 @@ public partial class SignupPage : ContentPage
         SetBusy(true);
         try
         {
-            var request = new RegisterRequest(email, password, firstName, lastName);
+            var userDto = new ManualNetUserDto { FirstName = firstName, LastName = lastName, Email = email };
+            var request = new RegisterRequest(userDto, password);
             await _serverProxy.RegisterAsync(request);
 
             await DisplayAlertAsync("Account created", "You can now log in.", "Continue");

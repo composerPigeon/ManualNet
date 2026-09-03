@@ -1,11 +1,10 @@
 using Shared.Model.Auth;
+using Shared.Model.Domain;
 
 namespace Shared.Requests;
 
-public class RegisterRequest(ManualNetEmail email, Password password, string firstName, string lastName) : NonAuthorizedRequest
+public class RegisterRequest(ManualNetUserDto user, Password password) : NonAuthorizedRequest
 {
-    public ManualNetEmail Email { get; } = email;
+    public ManualNetUserDto User { get; } = user;
     public Password Password { get; } = password;
-    public string FirstName { get; } = firstName;
-    public string LastName { get; } = lastName;
 }

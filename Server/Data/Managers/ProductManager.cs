@@ -4,12 +4,12 @@ using Shared.Model.Domain;
 
 namespace Server.Data.Managers;
 
-public interface IProductManager : IDbSetEntityManager<ProductEntity, Guid>
+public interface IProductManager : IDbSetEntityManager<ProductEntity>
 {
     
 }
 
-public sealed class ProductManager(AppDbContext context) : DbSetEntityManager<ProductEntity, Guid>(context), IProductManager
+public sealed class ProductManager(AppDbContext context) : DbSetEntityManager<ProductEntity>(context), IProductManager
 {
     
 }

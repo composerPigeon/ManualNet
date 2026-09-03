@@ -4,9 +4,9 @@ using Server.Model;
 
 namespace Server.Model.Auth;
 
-public class RefreshTokenEntity : IEntityBase<Guid>
+public class RefreshTokenEntity : IEntityBase
 {
-    public Guid Id { get; init; }
+    public string Id { get; private init; } = string.Empty;
 
     [MaxLength(RefreshTokenEntityContext.TokenHashMaxLength)]
     public string TokenHash { get; init; } = string.Empty;
@@ -14,19 +14,18 @@ public class RefreshTokenEntity : IEntityBase<Guid>
     public DateTime ExpiresAt { get; init; }
     public DateTime? RevokedAt { get; set; }
 
-    public ManualNetUserEntity UserEntity { get; init; } = null!;
+    public ManualNetUserEntity User { get; init; } = null!;
 
     public bool IsActive => RevokedAt == null && ExpiresAt > DateTime.UtcNow;
 
-    public static RefreshTokenEntity From(ManualNetUserEntity userEntity, HashToken token)
+    public static RefreshTokenEntity Create(ManualNetUserEntity userEntity, HashToken token)
     {
         return new RefreshTokenEntity
         {
-            Id = Guid.NewGuid(),
             TokenHash = token.Hash,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = token.ExpiresAt,
-            UserEntity = userEntity,
+            User = userEntity,
         };
     }
 }

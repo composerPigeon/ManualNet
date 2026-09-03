@@ -5,15 +5,12 @@ using Server.Model.Domain;
 
 namespace Server.Data.EntityContexts;
 
-public class ProductEntityContext : EntityContextBase<ProductEntity, Guid>
+public class ProductEntityContext : EntityContextBase<ProductEntity>
 {
     protected override void MapProperties(EntityTypeBuilder<ProductEntity> entity)
     {
         base.MapProperties(entity);
         
-        entity.Property(p => p.Id)
-            .IsRequired();
-
         entity.Property(p => p.Name)
             .HasMaxLength(IEntityContext.MaxNameLength)
             .IsRequired();

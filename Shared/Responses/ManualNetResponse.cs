@@ -1,4 +1,5 @@
 using Shared.Model.Auth;
+using Shared.Model.Domain;
 
 namespace Shared.Responses;
 
@@ -14,6 +15,14 @@ public abstract class ManualNetResponse
     public static OkResponse Ok()
     {
         return new OkResponse();
+    }
+
+    public static ManualListResponse ManualList(IEnumerable<ManualDto> manuals)
+    {
+        return new ManualListResponse
+        {
+            Manuals = manuals
+        };
     }
 
     public static TResponse Default<TResponse>()

@@ -1,14 +1,15 @@
 using Shared.Model.Auth;
 using Shared.Responses;
-using System.Net;
+using Server.Model.Domain;
 
 namespace Server.Services;
 
 public interface IResultFactory
 {
     public IResult Ok();
-    public IResult Ok(string message);
-    
+
+    public IResult Manuals(IEnumerable<UserManualRelation> manuals);
+
     public IResult Authorized(IManualNetUser user, Token authToken, Token refreshToken);
     
     public IResult Unauthorized();
@@ -23,11 +24,14 @@ public class ResultFactory : IResultFactory
         var okResponse = ManualNetResponse.Ok();
         return Results.Ok(okResponse);
     }
-    public IResult Ok(string message)
+
+    public IResult Manuals(IEnumerable<UserManualRelation> manuals)
     {
-        var messageResponse = ManualNetResponse.Error(message);
-        return Results.Ok(messageResponse);
+        var dtoList = manuals.Select(m => m.AsDto()).ToList();
+        var response = ManualNetResponse.ManualList(dtoList);
+        return Results.Ok(response);
     }
+    
     public IResult Authorized(IManualNetUser user, Token authToken, Token refreshToken)
     {
         var authResponse = ManualNetResponse.Auth(user, authToken, refreshToken);

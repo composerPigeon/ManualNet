@@ -63,3 +63,8 @@ Accept: application/json
 {
   "refreshToken": "{{refresh_token}}"
 }
+
+###
+
+GET {{Server_HostAddress}}/manuals/
+Authorization: Bearer {{jwt_token}}

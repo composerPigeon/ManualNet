@@ -1,16 +1,31 @@
-using System.ComponentModel.DataAnnotations;
-using Server.Data.EntityContexts;
-using Shared.Model.Auth;
 using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class ManualEntity : IEntityBase<Guid>
+public class ManualEntity : DtoEntityBase<ManualDto>
 {
-    public Guid Id { get; init; }
-    
-    public DateTime AddedAt { get; init; }
-    public Language Language { get; init; }
+    public DateTime AddedAt { get; private set; }
+    public Language Language { get; private set; }
 
-    public required ProductEntity Product { get; init; }
+    public ProductEntity Product { get; private set; }
+
+    public override ManualDto AsDto()
+    {
+        return new ManualDto
+        {
+            Id = Id,
+            AddedAt = AddedAt,
+            Language = Language,
+            FileName = string.Empty,
+            Rating = default,
+            Product = Product.AsDto()
+        };
+    }
+
+    public override void InitDataFrom(ManualDto dto)
+    {
+        AddedAt = dto.AddedAt;
+        Language = dto.Language;
+        Product = IDtoEntity.CreateFrom<ProductEntity,ProductDto>(dto.Product);
+    }
 }

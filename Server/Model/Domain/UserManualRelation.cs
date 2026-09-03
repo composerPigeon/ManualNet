@@ -5,10 +5,8 @@ using Shared.Model.Domain;
 
 namespace Server.Model.Domain;
 
-public class UserManualRelation : IEntityBase<Guid>
+public class UserManualRelation : DtoEntityBase<ManualDto>
 {
-    public Guid Id { get; init; }
-    
     public ManualRating Rating { get; private set; }
     
     [MaxLength(IEntityContext.MaxNameLength)]
@@ -20,5 +18,24 @@ public class UserManualRelation : IEntityBase<Guid>
     public void UpdateRating(ManualRating rating)
     {
         Rating = rating;
+    }
+
+    public override ManualDto AsDto()
+    {
+        return new ManualDto
+        {
+            Id = Manual.Id,
+            AddedAt = Manual.AddedAt,
+            Language = Manual.Language,
+
+            FileName = LocalFileName,
+            Rating = Rating,
+            Product =  Manual.Product.AsDto(),
+        };
+    }
+
+    public override void InitDataFrom(ManualDto dto)
+    {
+        throw new NotImplementedException();
     }
 }
